@@ -8,7 +8,7 @@ import { fareFor, routeFor } from './domain';
 import { HttpError } from './errors';
 import { login, publicUser, register } from './services/authService';
 import { cancelRide, createRide, getRide, listRides } from './services/rideService';
-import { advancePool, getActivePool, getVehicle, setAvailability } from './services/driverService';
+import { advancePool, getActivePool, getVehicle, listDriverHistory, setAvailability } from './services/driverService';
 
 const app = express();
 app.disable('x-powered-by');
@@ -95,6 +95,10 @@ app.post('/vehicles/status', requireRole('DRIVER'), asyncRoute(async (req, res) 
 
 app.get('/driver/rides', requireRole('DRIVER'), asyncRoute(async (req, res) => {
   res.json({ pool: await getActivePool(req.session!.userId) });
+}));
+
+app.get('/driver/history', requireRole('DRIVER'), asyncRoute(async (req, res) => {
+  res.json(await listDriverHistory(req.session!.userId));
 }));
 
 for (const action of ['arrive', 'start', 'complete'] as const) {

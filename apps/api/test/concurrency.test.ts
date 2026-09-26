@@ -62,5 +62,8 @@ describe.skipIf(!dedicatedTestDatabase)('pool transactions against PostgreSQL', 
     expect((await request(app).post(`/rides/${first.body.rideRequestId}/cancel`).set('Cookie', nusrat).send({})).status).toBe(409);
     expect((await request(app).post(`/driver/rides/${pool.id}/start`).set('Cookie', driver).send({})).status).toBe(200);
     expect((await request(app).post(`/driver/rides/${pool.id}/complete`).set('Cookie', driver).send({})).status).toBe(200);
+    const history = await request(app).get('/driver/history').set('Cookie', driver);
+    expect(history.status).toBe(200);
+    expect(history.body.pools[0].poolId).toBe(pool.id);
   }, 30_000);
 });

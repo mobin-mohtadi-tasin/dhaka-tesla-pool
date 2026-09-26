@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { api, label, Manifest, User } from '@/lib/api';
+import { api, label, Manifest, PastPool, User } from '@/lib/api';
 
 type Vehicle = { id: string; name: string; licensePlate: string; capacity: number; driverStatus: 'ONLINE' | 'OFFLINE'; isActive: boolean };
 
@@ -11,13 +11,14 @@ export default function DriverPage() {
   const [user, setUser] = useState<User | null>(null);
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [pool, setPool] = useState<Manifest | null>(null);
+  const [history, setHistory] = useState<PastPool[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
   const refresh = useCallback(async () => {
-    const [vehicleData, poolData] = await Promise.all([api<Vehicle>('/vehicles/me'), api<{ pool: Manifest | null }>('/driver/rides')]);
-    setVehicle(vehicleData); setPool(poolData.pool);
+    const [vehicleData, poolData, historyData] = await Promise.all([api<Vehicle>('/vehicles/me'), api<{ pool: Manifest | null }>('/driver/rides'), api<{ pools: PastPool[] }>('/driver/history')]);
+    setVehicle(vehicleData); setPool(poolData.pool); setHistory(historyData.pools);
   }, []);
 
   useEffect(() => {
@@ -56,5 +57,8 @@ export default function DriverPage() {
         <div className="actions">{pool.passengers.length > 0 && pool.passengers.every((p) => p.status === 'MATCHED') && <button className="primary" disabled={busy} onClick={() => advance('arrive')}>Mark arrived</button>}{pool.passengers.length > 0 && pool.passengers.every((p) => p.status === 'DRIVER_ARRIVED') && <button className="primary" disabled={busy} onClick={() => advance('start')}>Start trip</button>}{pool.status === 'IN_PROGRESS' && <button className="primary" disabled={busy} onClick={() => advance('complete')}>Complete trip</button>}</div>
       </>}
     </section></div>
+    <section className="card history"><div className="section-title"><span className="step">03</span><h2>Trip history</h2></div>
+      {history.length === 0 ? <div className="empty">Completed trips will appear here.</div> : <div className="ride-list">{history.map((trip) => <div key={trip.poolId} className="ride-item"><span><b>{label(trip.corridor)}</b><small>{new Date(trip.completedAt ?? trip.createdAt).toLocaleString()} · {trip.passengers.map((person) => person.name).join(', ') || 'No passengers'}</small></span><span className="ride-meta"><b>{trip.occupiedSeats} seats</b><small>{label(trip.status)}</small></span></div>)}</div>}
+    </section>
   </main>;
 }

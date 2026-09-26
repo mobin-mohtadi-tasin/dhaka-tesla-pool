@@ -5,7 +5,7 @@ An MVP for sharing seats in Dhaka's battery powered three wheelers. Passengers r
 ## What is implemented
 
 - Passenger and driver registration, sign in, and signed HTTP only cookie sessions.
-- Driver vehicle registration with immutable physical capacity, online/offline control, and a live pool manifest.
+- Driver vehicle registration with immutable physical capacity, online/offline control, a live pool manifest, and trip history.
 - Passenger fare estimates, ride requests, deterministic matching, ride history, cancellation, and status history.
 - Driver arrival, start, and completion actions with guarded state transitions.
 - PostgreSQL row locking for seat allocation, a partial unique index for one active pool per vehicle, and integer fare constraints.
@@ -35,6 +35,8 @@ erDiagram
 ```
 
 The service layer owns all transaction boundaries. A join locks the target pool row, checks capacity, inserts a membership, increments `occupied_seats`, transitions the ride, and reprices members in one transaction. Vehicle capacity cannot change after creation. A new pool locks its vehicle row before checking whether another active pool exists. The database also has a partial unique index for that rule. The pool counter must equal the sum of its active memberships after every commit.
+
+Drivers opt into dispatch by going online. Matching then assigns compatible requests automatically; there is no separate acceptance step in this MVP. This avoids holding a seat through an unconfirmed driver action, and the driver still controls departure through arrival and start actions.
 
 ## Stack and choices
 
@@ -94,6 +96,7 @@ The PostgreSQL concurrency test requires a dedicated database whose name ends in
 - `POST /rides/quote`, `POST /rides`, `GET /rides`, `GET /rides/:id`, `POST /rides/:id/cancel`
 - `GET /vehicles/me`, `POST /vehicles/status`
 - `GET /driver/rides`, `POST /driver/rides/:id/arrive`, `/start`, `/complete`
+- `GET /driver/history`
 
 See [API details](docs/api.md), [pool rules](docs/pooling.md), [database design](docs/database.md), and [architecture decisions](.ai/decisions.md).
 

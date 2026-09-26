@@ -8,6 +8,7 @@ export type Ride = {
   history: { fromStatus: string | null; toStatus: string; reason: string | null; createdAt: string }[];
 };
 export type Manifest = { poolId: string; status: string; corridor: string; occupiedSeats: number; capacity: number; vehicleName: string; passengers: { rideRequestId: string; passengerName: string; pickupZone: string; dropoffZone: string; seats: number; status: string }[] };
+export type PastPool = { poolId: string; status: string; corridor: string; occupiedSeats: number; createdAt: string; completedAt: string | null; passengers: { name: string; pickupZone: string; dropoffZone: string }[] };
 
 export async function api<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`/api${path}`, { credentials: 'same-origin', cache: 'no-store', ...options, headers: { 'Content-Type': 'application/json', ...options?.headers } });

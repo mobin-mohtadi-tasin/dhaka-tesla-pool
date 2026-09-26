@@ -30,6 +30,19 @@ export async function getActivePool(driverId: string) {
   };
 }
 
+export async function listDriverHistory(driverId: string) {
+  const pools = await db.pool.findMany({
+    where: { vehicle: { driverId }, status: { in: ['COMPLETED', 'CANCELLED'] } },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }], take: 20,
+    include: { memberships: { include: { rideRequest: { include: { passenger: true } } } } },
+  });
+  return { pools: pools.map((pool) => ({
+    poolId: pool.id, corridor: pool.corridorId, status: pool.status,
+    occupiedSeats: pool.occupiedSeats, createdAt: pool.createdAt, completedAt: pool.completedAt,
+    passengers: pool.memberships.map((member) => ({ name: member.rideRequest.passenger.fullName, pickupZone: member.rideRequest.pickupZone, dropoffZone: member.rideRequest.dropoffZone })),
+  })) };
+}
+
 const actions = {
   arrive: { fromPool: ['OPEN', 'FULL'] as PoolStatus[], fromRide: 'MATCHED' as RideStatus, toRide: 'DRIVER_ARRIVED' as RideStatus },
   start: { fromPool: ['OPEN', 'FULL'] as PoolStatus[], fromRide: 'DRIVER_ARRIVED' as RideStatus, toRide: 'STARTED' as RideStatus, toPool: 'IN_PROGRESS' as PoolStatus },

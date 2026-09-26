@@ -35,6 +35,7 @@ All driver routes require the `DRIVER` role. A driver can access only the vehicl
 - `GET /vehicles/me` returns the driver's vehicle and availability.
 - `POST /vehicles/status` accepts `{ "driverStatus": "ONLINE" }` or `OFFLINE`.
 - `GET /driver/rides` returns `{ pool: null }` or `{ pool: { poolId, status, corridor, occupiedSeats, capacity, vehicleName, passengers } }` for the current active pool. The manifest contains names, route zones, seats, and ride statuses; it does not expose passenger fares.
+- `GET /driver/history` returns the driver's 20 most recent completed or cancelled pools, including passengers still associated with each pool.
 - `POST /driver/rides/:id/arrive` transitions all `MATCHED` rides to `DRIVER_ARRIVED`.
 - `POST /driver/rides/:id/start` requires every member to be `DRIVER_ARRIVED`; transitions the pool to `IN_PROGRESS` and rides to `STARTED`.
 - `POST /driver/rides/:id/complete` requires `IN_PROGRESS`; transitions the pool and member rides to `COMPLETED`.
