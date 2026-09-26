@@ -1,0 +1,13 @@
+{
+  "name": "dhaka-tesla-pool",
+  "private": true,
+  "workspaces": ["apps/api", "apps/web"],
+  "scripts": {
+    "dev:api": "npm run dev -w @dtp/api",
+    "dev:web": "npm run dev -w @dtp/web",
+    "typecheck": "npm run typecheck -w @dtp/api && npm run typecheck -w @dtp/web",
+    "lint": "npm run lint -w @dtp/api && npm run lint -w @dtp/web",
+    "test": "npm run test -w @dtp/api",
+    "build": "npm run build -w @dtp/api && npm run build -w @dtp/web"
+  }
+}

@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PASSENGER
+  DRIVER
+}
+
+enum DriverStatus {
+  ONLINE
+  OFFLINE
+}
+
+enum PoolStatus {
+  OPEN
+  FULL
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum RideStatus {
+  REQUESTED
+  MATCHED
+  DRIVER_ARRIVED
+  STARTED
+  COMPLETED
+  CANCELLED
+}
+
+enum Zone {
+  BANANI
+  MOHAKHALI
+  GULSHAN_1
+  GULSHAN_2
+  MIRPUR_10
+  UTTARA
+}
+
+enum PaymentMethod {
+  CASH
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+}
+
+model User {
+  id           String        @id @default(uuid()) @db.Uuid
+  phoneNumber  String        @unique @map("phone_number")
+  fullName     String        @map("full_name")
+  role         Role
+  passwordHash String        @map("password_hash")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  vehicle      Vehicle?
+  rides        RideRequest[]
+
+  @@map("users")
+}
+
+model Vehicle {
+  id           String       @id @default(uuid()) @db.Uuid
+  driverId     String       @unique @map("driver_id") @db.Uuid
+  driver       User         @relation(fields: [driverId], references: [id])
+  name         String
+  licensePlate String       @unique @map("license_plate")
+  capacity     Int
+  driverStatus DriverStatus @default(OFFLINE) @map("driver_status")
+  isActive     Boolean      @default(true) @map("is_active")
+  pools        Pool[]
+
+  @@map("vehicles")
+}
+
+model Pool {
+  id            String           @id @default(uuid()) @db.Uuid
+  vehicleId     String           @map("vehicle_id") @db.Uuid
+  vehicle       Vehicle          @relation(fields: [vehicleId], references: [id])
+  corridorId    String           @map("corridor_id")
+  status        PoolStatus       @default(OPEN)
+  occupiedSeats Int              @default(0) @map("occupied_seats")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  startedAt     DateTime?        @map("started_at")
+  completedAt   DateTime?        @map("completed_at")
+  memberships   PoolMembership[]
+
+  @@index([status, corridorId, createdAt], map: "pools_candidate_idx")
+  @@map("pools")
+}
+
+model RideRequest {
+  id             String              @id @default(uuid()) @db.Uuid
+  passengerId    String              @map("passenger_id") @db.Uuid
+  passenger      User                @relation(fields: [passengerId], references: [id])
+  pickupZone     Zone                @map("pickup_zone")
+  dropoffZone    Zone                @map("dropoff_zone")
+  status         RideStatus          @default(REQUESTED)
+  seatsRequested Int                 @map("seats_requested")
+  createdAt      DateTime            @default(now()) @map("created_at")
+  updatedAt      DateTime            @updatedAt @map("updated_at")
+  membership     PoolMembership?
+  fare           Fare?
+  history        RideStatusHistory[]
+
+  @@index([passengerId, createdAt], map: "ride_passenger_history_idx")
+  @@map("ride_requests")
+}
+
+model PoolMembership {
+  id             String      @id @default(uuid()) @db.Uuid
+  poolId         String      @map("pool_id") @db.Uuid
+  pool           Pool        @relation(fields: [poolId], references: [id])
+  rideRequestId  String      @unique @map("ride_request_id") @db.Uuid
+  rideRequest    RideRequest @relation(fields: [rideRequestId], references: [id])
+  seatsAllocated Int         @map("seats_allocated")
+  joinedAt       DateTime    @default(now()) @map("joined_at")
+
+  @@index([poolId, joinedAt], map: "pool_memberships_manifest_idx")
+  @@map("pool_memberships")
+}
+
+model Fare {
+  id                 String        @id @default(uuid()) @db.Uuid
+  rideRequestId      String        @unique @map("ride_request_id") @db.Uuid
+  rideRequest        RideRequest   @relation(fields: [rideRequestId], references: [id])
+  baseFarePoysha     Int           @map("base_fare_poysha")
+  distanceFarePoysha Int           @map("distance_fare_poysha")
+  discountPoysha     Int           @map("discount_poysha")
+  totalFarePoysha    Int           @map("total_fare_poysha")
+  paymentMethod      PaymentMethod @default(CASH) @map("payment_method")
+  paymentStatus      PaymentStatus @default(UNPAID) @map("payment_status")
+
+  @@map("fares")
+}
+
+model RideStatusHistory {
+  id            String      @id @default(uuid()) @db.Uuid
+  rideRequestId String      @map("ride_request_id") @db.Uuid
+  rideRequest   RideRequest @relation(fields: [rideRequestId], references: [id])
+  fromStatus    RideStatus? @map("from_status")
+  toStatus      RideStatus  @map("to_status")
+  reason        String?
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  @@index([rideRequestId, createdAt], map: "ride_status_history_idx")
+  @@map("ride_status_history")
+}
