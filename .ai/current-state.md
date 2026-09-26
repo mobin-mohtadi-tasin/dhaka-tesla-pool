@@ -2,7 +2,7 @@
 
 ## Phase
 
-MVP implementation in progress.
+MVP implemented and integration verified; submission materials remain.
 
 ## Implemented
 
@@ -17,12 +17,12 @@ MVP implementation in progress.
 
 - Prisma schema validation and client generation passed.
 - Typecheck, lint, unit tests, and production builds passed.
-- The concurrency test is skipped until `TEST_DATABASE_URL` points to a dedicated PostgreSQL test database.
-- Docker Compose has not been executed because Docker is not installed on this machine.
+- Docker Compose built and started the web, API, and PostgreSQL services; all three health checks passed.
+- The checked in migration applied to the isolated test database. All four API tests passed there, including the concurrent final-seat booking test.
+- The web-to-API `/api/health` route returned `{"status":"ok"}` from the live stack.
 
 ## Submission work remaining
 
-- Run migrations, seed, and the concurrency test against PostgreSQL; run the complete Docker Compose stack.
 - Capture application screenshots and the six minute demo video.
-- Feature branches have been merged to `master`, and `pre-release` has been cut for integration checks. Cut `release/v1.0.0` after PostgreSQL and Docker verification, then publish an evaluator accessible repository.
+- Feature branches have been merged to `master`, and `pre-release` has passed integration checks. Cut `release/v1.0.0`, then publish an evaluator accessible repository.
 - Add a public deployment URL if a free hosting option is available.
