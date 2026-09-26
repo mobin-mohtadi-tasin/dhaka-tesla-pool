@@ -5,7 +5,7 @@ import { HttpError } from './errors';
 
 type Session = { userId: string; role: Role; expires: number };
 
-function secret() {
+export function assertSessionSecret() {
   const value = process.env.SESSION_SECRET;
   if (!value || value.length < 32) throw new Error('SESSION_SECRET must contain at least 32 characters');
   return value;
@@ -14,7 +14,7 @@ function secret() {
 export function issueSession(userId: string, role: Role) {
   const payload: Session & { nonce: string } = { userId, role, expires: Date.now() + 7 * 86_400_000, nonce: randomBytes(16).toString('hex') };
   const body = Buffer.from(JSON.stringify(payload)).toString('base64url');
-  const signature = createHmac('sha256', secret()).update(body).digest('base64url');
+  const signature = createHmac('sha256', assertSessionSecret()).update(body).digest('base64url');
   return `${body}.${signature}`;
 }
 
@@ -22,7 +22,7 @@ function readSession(token: string | undefined): Session | null {
   if (!token) return null;
   const [body, signature, extra] = token.split('.');
   if (!body || !signature || extra) return null;
-  const expected = createHmac('sha256', secret()).update(body).digest();
+  const expected = createHmac('sha256', assertSessionSecret()).update(body).digest();
   let received: Buffer;
   try { received = Buffer.from(signature, 'base64url'); } catch { return null; }
   if (received.length !== expected.length || !timingSafeEqual(received, expected)) return null;

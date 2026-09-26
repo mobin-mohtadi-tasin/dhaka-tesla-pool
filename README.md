@@ -54,7 +54,7 @@ Fares use a 1,500 poysha boarding fee plus a fixed distance fee per supported ro
 Prerequisites: Docker with Compose.
 
 1. Copy `.env.example` to `.env`.
-2. Set `DB_PASSWORD`, `SESSION_SECRET` (at least 32 characters), and `DEMO_PASSWORD` (at least 10 characters) to your own local values. Keep the file untracked.
+2. Set `DB_PASSWORD`, `SESSION_SECRET` (at least 32 characters), and `DEMO_PASSWORD` (at least 10 characters) to your own local values. Keep the file untracked. Use a URL safe database password or URL encode it in `DATABASE_URL` for the local setup.
 3. Run `docker compose up --build`.
 4. Open <http://localhost:3000>.
 
@@ -88,7 +88,7 @@ npm run test -w @dtp/api
 npm run build
 ```
 
-The PostgreSQL concurrency test requires a dedicated database whose name ends in `_test`. Set `TEST_DATABASE_URL` and apply the migration to that database before running the tests. The test is skipped when this variable is absent. Never point it at a production database.
+The PostgreSQL concurrency test requires a dedicated database whose name ends in `_test`. Create that database, temporarily set `DATABASE_URL` to it, and run `npm run db:migrate -w @dtp/api`. Then set `TEST_DATABASE_URL` to the same URL and run the API tests. The test is skipped when `TEST_DATABASE_URL` is absent. Never point it at a production database.
 
 ## API overview
 

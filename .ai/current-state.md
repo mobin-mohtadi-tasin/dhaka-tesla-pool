@@ -24,5 +24,5 @@ MVP implementation in progress.
 
 - Run migrations, seed, and the concurrency test against PostgreSQL; run the complete Docker Compose stack.
 - Capture application screenshots and the six minute demo video.
-- Arrange the requested `master`, `pre-release`, `release/v1.0.0`, and feature branch history, then publish an evaluator accessible repository.
+- Feature branches have been merged to `master`, and `pre-release` has been cut for integration checks. Cut `release/v1.0.0` after PostgreSQL and Docker verification, then publish an evaluator accessible repository.
 - Add a public deployment URL if a free hosting option is available.

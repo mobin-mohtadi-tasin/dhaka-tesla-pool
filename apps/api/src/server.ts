@@ -1,6 +1,8 @@
 import app from './app';
 import { db } from './db';
+import { assertSessionSecret } from './auth';
 
+assertSessionSecret();
 const port = Number(process.env.PORT ?? 4000);
 const server = app.listen(port, () => process.stdout.write(`API listening on ${port}\n`));
 
