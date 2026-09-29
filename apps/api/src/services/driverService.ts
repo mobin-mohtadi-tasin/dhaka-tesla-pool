@@ -1,8 +1,8 @@
 import { PoolStatus, Prisma, RideStatus } from '@prisma/client';
-import { db } from '../db';
-import { canTransitionPool } from '../domain';
-import { HttpError } from '../errors';
-import { lockPool, transitionRide } from '../repositories';
+import { db } from '../database/client';
+import { canTransitionPool } from '../domain/pooling';
+import { HttpError } from '../shared/httpError';
+import { lockPool, transitionRide } from '../repositories/poolRepository';
 
 const activeStatuses: PoolStatus[] = ['OPEN', 'FULL', 'IN_PROGRESS'];
 

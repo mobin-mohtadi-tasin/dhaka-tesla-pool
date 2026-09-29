@@ -1,6 +1,6 @@
 import { Prisma, Pool, RideStatus } from '@prisma/client';
-import { HttpError } from './errors';
-import { canTransition } from './domain';
+import { HttpError } from '../shared/httpError';
+import { canTransition } from '../domain/pooling';
 
 export async function lockPool(tx: Prisma.TransactionClient, poolId: string): Promise<Pool> {
   const rows = await tx.$queryRaw<{ id: string }[]>`SELECT id FROM pools WHERE id = ${poolId}::uuid FOR UPDATE`;

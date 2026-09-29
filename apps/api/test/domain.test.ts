@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canTransition, fareFor, routeFor } from '../src/domain';
+import { canTransition, fareFor, routeFor } from '../src/domain/pooling';
 
 describe('deterministic route and fare rules', () => {
   it('matches Nusrat and Rafiq to the same corridor', () => {

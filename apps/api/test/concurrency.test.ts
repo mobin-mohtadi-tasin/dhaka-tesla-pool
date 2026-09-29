@@ -17,7 +17,7 @@ describe.skipIf(!dedicatedTestDatabase)('pool transactions against PostgreSQL', 
     process.env.DATABASE_URL = testUrl;
     process.env.SESSION_SECRET = randomBytes(32).toString('hex');
     ({ default: app } = await import('../src/app'));
-    ({ db } = await import('../src/db'));
+    ({ db } = await import('../src/database/client'));
     await db.vehicle.updateMany({ data: { driverStatus: 'OFFLINE' } });
   });
 

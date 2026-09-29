@@ -1,8 +1,8 @@
 import { Prisma, Zone } from '@prisma/client';
-import { db } from '../db';
-import { canTransitionPool, fareFor, routeFor } from '../domain';
-import { HttpError } from '../errors';
-import { lockPool, lockVehicle, transitionRide } from '../repositories';
+import { db } from '../database/client';
+import { canTransitionPool, fareFor, routeFor } from '../domain/pooling';
+import { HttpError } from '../shared/httpError';
+import { lockPool, lockVehicle, transitionRide } from '../repositories/poolRepository';
 
 type Tx = Prisma.TransactionClient;
 
@@ -105,4 +105,10 @@ export async function cancelRide(passengerId: string, rideId: string, reason?: s
     await transitionRide(tx, rideId, 'CANCELLED', reason ?? 'CANCELLED_BY_PASSENGER');
   }, { timeout: 15_000 });
   return getRide(passengerId, rideId);
+}
+
+export function quoteRideFare(pickupZone: Zone, dropoffZone: Zone, seatsRequested: number) {
+  const route = routeFor(pickupZone, dropoffZone);
+  if (!route) throw new HttpError(400, 'Unsupported route');
+  return { corridorId: route.corridor, fare: fareFor(pickupZone, dropoffZone, seatsRequested, false), potentialPooledFare: fareFor(pickupZone, dropoffZone, seatsRequested, true) };
 }

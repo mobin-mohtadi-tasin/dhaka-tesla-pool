@@ -1,6 +1,6 @@
 import app from './app';
-import { db } from './db';
-import { assertSessionSecret } from './auth';
+import { db } from './database/client';
+import { assertSessionSecret } from './middleware/auth';
 
 assertSessionSecret();
 const port = Number(process.env.PORT ?? 4000);

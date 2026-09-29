@@ -1,7 +1,7 @@
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import type { Request, Response, NextFunction } from 'express';
 import { Role } from '@prisma/client';
-import { HttpError } from './errors';
+import { HttpError } from '../shared/httpError';
 
 type Session = { userId: string; role: Role; expires: number };
 

@@ -10,6 +10,7 @@ An MVP for sharing seats in Dhaka's battery powered three wheelers. Passengers r
 - Driver arrival, start, and completion actions with guarded state transitions.
 - PostgreSQL row locking for seat allocation, a partial unique index for one active pool per vehicle, and integer fare constraints.
 - Demo seed accounts for Jashim, Nusrat, Rafiq, Shirin, and Ashik.
+- Offline Dhaka street map with real OpenStreetMap geometry, representative zone markers, zoom, pan, and fit controls. See [map source and limitations](docs/map.md).
 
 ## Architecture
 
@@ -102,12 +103,19 @@ See [API details](docs/api.md), [pool rules](docs/pooling.md), [database design]
 
 ## Project structure
 
-- `apps/api/src/domain.ts`: corridor, fare, and state transition rules.
+- `apps/api/src/domain/pooling.ts`: corridor, fare, and state transition rules.
 - `apps/api/src/services/`: ride and driver workflows with transaction boundaries.
-- `apps/api/src/repositories.ts`: row locks and state persistence helpers.
+- `apps/api/src/repositories/poolRepository.ts`: row locks and state persistence helpers.
 - `apps/api/prisma/`: schema, migration, and demo seed.
-- `apps/web/app/`: passenger and driver interfaces.
+- `apps/api/src/routes/`, `controllers/`, `validation/`: endpoint wiring and request handling.
+- `apps/api/src/middleware/`, `database/`, `shared/`: authentication, Prisma client, and HTTP helpers.
+- `apps/web/app/`: Next.js route entries, layout, and global styles.
+- `apps/web/features/`: auth, passenger, driver screens, and map implementation.
+- `apps/web/components/`, `lib/`, `types/`: shared UI, HTTP/display helpers, and API contracts.
+
 - `docs/` and `.ai/`: product and architecture notes.
+
+See [the structure guide](docs/project-structure.md) for where to make changes and how to migrate the database.
 
 ## Limitations and next steps
 
